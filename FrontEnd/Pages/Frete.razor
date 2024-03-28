@@ -1,0 +1,79 @@
+﻿@page "/frete"
+@using FrontEnd.Models.Response
+@using FrontEnd.Models.Request
+
+<h3>Carteirinha</h3>
+<EditForm Model="_freteRequest" OnValidSubmit="GerarPreco">
+    <DataAnnotationsValidator/>
+    <div class="row md-2">
+        <div class="col-4">
+            <label>Distâcia do frete</label>
+            <InputNumber @bind-Value="_freteRequest.Distancia" class="form-control" />
+            <ValidationMessage For="() => _freteRequest.Distancia" />
+        </div>
+        <div class="col-4">
+            <label>Peso da Carga</label>
+            <InputNumber @bind-Value="_freteRequest.Peso" class="form-control" />
+            <ValidationMessage For="() => _freteRequest.Distancia" />
+        </div>
+        <div class="col-4">
+            <label>Altura Caixa</label>
+            <InputNumber @bind-Value="_freteRequest.Altura" class="form-control" />
+            <ValidationMessage For="() => _freteRequest.Distancia" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-4">
+            <label>Comrpimento Caixa</label>
+            <InputNumber @bind-Value="_freteRequest.Comprimento" class="form-control" />
+            <ValidationMessage For="() => _freteRequest.Distancia" />
+        </div>
+        <div class="col-4">
+            <label>Largura Caixa</label>
+            <InputNumber @bind-Value="_freteRequest.Largura" class="form-control" />
+            <ValidationMessage For="() => _freteRequest.Distancia" />
+        </div>
+        <div class="row">
+            <div class="col-4">
+                <button type="submit" class="btn btn-outline-primary mt-2">Gerar Preco</button>
+            </div>
+        </div>     
+    </div>
+</EditForm>
+@if (exibirFrete)
+{
+    <div class="row mt-16 p-5">
+        <div class="col-md-12">
+            <h5>
+                <span>Preço do frete: @_freteResponse.CustoFrete</span>
+            </h5>            
+        </div>
+    </div>
+}
+  
+@code {
+    private FreteRequest _freteRequest { get; set; } = new();
+    private FreteResponse _freteResponse { get; set; } = new();
+    private bool exibirFrete = false;
+
+    private async Task GerarPreco()
+    {
+        var apiUrl = $"https://localhost:7284/Frete/freteObter?Altura={_freteRequest.Altura}&Largura={_freteRequest.Largura}&Comprimento={_freteRequest.Comprimento}&Distancia={_freteRequest.Distancia}&Peso={_freteRequest.Peso}";
+        var http = new HttpClient();
+
+        try
+        {
+            _freteResponse = await http.GetFromJsonAsync<FreteResponse>(apiUrl);       
+            if (_freteResponse.CustoFrete > 0)
+            {
+                exibirFrete = true;
+            }
+        }
+        
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
+}
